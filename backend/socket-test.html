@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket Test</title>
+</head>
+<body>
+
+<h2>Socket.IO Chat Test</h2>
+
+<p id="status">Connecting...</p>
+
+<br>
+
+<input id="room" placeholder="Room ID">
+<button onclick="joinRoom()">Join Room</button>
+
+<br><br>
+
+<input id="msg" placeholder="Message">
+<button onclick="sendMessage()">Send</button>
+
+<ul id="messages"></ul>
+
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io("http://localhost:5000");
+
+socket.on("connect", () => {
+    document.getElementById("status").innerHTML =
+        "Connected: " + socket.id;
+});
+
+socket.on("connect_error", (err) => {
+    document.getElementById("status").innerHTML =
+        "Error: " + err.message;
+});
+
+function joinRoom() {
+    const room = document.getElementById("room").value;
+    socket.emit("joinRoom", room);
+    alert("Joined " + room);
+}
+
+function sendMessage() {
+    const room = document.getElementById("room").value;
+    const msg = document.getElementById("msg").value;
+
+    socket.emit("sendMessage", {
+        roomId: room,
+        content: msg
+    });
+}
+
+socket.on("receiveMessage", (data) => {
+    const li = document.createElement("li");
+    li.innerText = data.content;
+    document.getElementById("messages").appendChild(li);
+});
+</script>
+
+</body>
+</html>
